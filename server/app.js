@@ -15,8 +15,11 @@ app.get('/', (req, res) => {
 
 io.on('connection', socket => {
     console.log(`jamaah ${socket.id} hadir`)
-    socket.on('getData', () => {
-        io.emit('sendData', 'parsel')
+    socket.on('modelPlus', () => {
+        io.emit('resModel', 1)
+    })
+    socket.on('modelMin', () => {
+        io.emit('resModel', -1)
     })
 })
 

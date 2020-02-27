@@ -1,22 +1,15 @@
 <template>
-  <v-container
-    fluid
-  >
-    <v-system-bar lights-out></v-system-bar>
-    <v-carousel
-      :continuous="false"
-      :cycle="cycle"
+  <div>
+    <v-carousel v-model="model"
+      hide-delimiters
       :show-arrows="false"
-      hide-delimiter-background
-      delimiter-icon="mdi-minus"
-      height="300"
     >
       <v-carousel-item
-        v-for="(slide, i) in slides"
-        :key="i"
+        v-for="(color, i) in colors"
+        :key="color"
       >
         <v-sheet
-          :color="colors[i]"
+          :color="color"
           height="100%"
           tile
         >
@@ -25,75 +18,50 @@
             align="center"
             justify="center"
           >
-            <div class="display-3">{{ slide }} Slide</div>
+            <div class="display-3">Slide {{ i + 1 }}</div>
           </v-row>
         </v-sheet>
       </v-carousel-item>
     </v-carousel>
-    <v-list two-line>
-      <v-list-item>
-        <v-list-item-avatar>
-          <v-img src="https://cdn.vuetifyjs.com/images/john.png"></v-img>
-        </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title>John Leider</v-list-item-title>
-          <v-list-item-subtitle>Author</v-list-item-subtitle>
-        </v-list-item-content>
-        <v-list-item-content>
-          {{message}}
-        </v-list-item-content>
-        <v-list-item-action>
-          <v-btn
-            @click="getData"
-          >
-            <v-icon
-              fab
-            >
-              media_plus
-            </v-icon>
-          </v-btn>
-        </v-list-item-action>
-      </v-list-item>
-    </v-list>
-  </v-container>
+    <v-card flat>
+      <v-card-title>
+        Change carousel by clicking minum or plus symbol below
+      </v-card-title>
+    </v-card>
+    <v-row justify="space-around">
+      <v-icon @click="modelMin">mdi-minus</v-icon>
+      {{ model }}
+      <v-icon @click="modelPlus">mdi-plus</v-icon>
+    </v-row>
+  </div>
 </template>
 
 <script>
-import io from 'socket.io-client'
-const socket = io.connect('http://localhost:3000')
-
 export default {
   data () {
     return {
-      message: '',
       colors: [
-        'green',
+        'primary',
         'secondary',
-        'yellow darken-4',
-        'red lighten-2',
-        'orange darken-1'
+        'yellow darken-2',
+        'red',
+        'orange'
       ],
-      cycle: false,
-      slides: [
-        'First',
-        'Second',
-        'Third',
-        'Fourth',
-        'Fifth'
-      ],
+      model: 0
     }
   },
   methods: {
-    getData () {
-      socket.emit('getData')
-      socket.on('sendData', data => {
-        this.message = data
-      })
+    modelPlus () {
+      this.$store.state.socket.emit('modelPlus')
+    },
+    modelMin () {
+      this.$store.state.socket.emit('modelMin')
     }
   },
-  created: () => {
-    document.title = 'Day Slideshow Demo'
-    this.getData()
+  created () {
+    this.$store.state.socket.on('resModel', num => {
+      this.model = this.model + num
+    })
   }
 }
 </script>
